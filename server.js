@@ -148,27 +148,125 @@ app.get("/admin", (req, res) => {
   res.send(`
   <html>
   <head>
-    <title>Admin</title>
+    <title>Admin Dashboard</title>
     <style>
-      body { background:#020617; color:white; font-family:Arial; padding:20px; }
-      input,button { padding:10px; margin:5px; width:100%; }
-      .box { background:#1e293b; padding:15px; margin-bottom:20px; }
+      body {
+        margin:0;
+        font-family: 'Segoe UI', sans-serif;
+        background: #0f172a;
+        color: white;
+      }
+
+      .container {
+        max-width: 1100px;
+        margin: auto;
+        padding: 20px;
+      }
+
+      h1 {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      .card {
+        background: #1e293b;
+        padding: 20px;
+        border-radius: 15px;
+        margin-bottom: 20px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+      }
+
+      .card h2 {
+        margin-bottom: 15px;
+      }
+
+      input {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 10px;
+        border-radius: 8px;
+        border: none;
+        outline: none;
+        background: #0f172a;
+        color: white;
+      }
+
+      input::placeholder {
+        color: #94a3b8;
+      }
+
+      button {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        border-radius: 8px;
+        background: linear-gradient(45deg,#3b82f6,#06b6d4);
+        color: white;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.3s;
+      }
+
+      button:hover {
+        transform: scale(1.03);
+      }
+
+      .orders {
+        display: grid;
+        gap: 15px;
+      }
+
+      .order {
+        background: #020617;
+        padding: 15px;
+        border-radius: 10px;
+        border-left: 5px solid orange;
+      }
+
+      .confirmed {
+        border-left: 5px solid limegreen;
+      }
+
+      .top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .status {
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+      }
+
+      .pending {
+        background: orange;
+        color: black;
+      }
+
+      .done {
+        background: limegreen;
+        color: black;
+      }
     </style>
   </head>
+
   <body>
-    <h1>Admin Dashboard</h1>
+    <div class="container">
+      <h1>⚙️ Admin Dashboard</h1>
 
-    <div class="box">
-      <h3>Add Product</h3>
-      <input id="name" placeholder="Name">
-      <input id="price" placeholder="Price">
-      <input id="image" placeholder="Image URL">
-      <button onclick="add()">Add</button>
-    </div>
+      <div class="card">
+        <h2>Add Product</h2>
+        <input id="name" placeholder="Product Name" />
+        <input id="price" placeholder="Price (e.g. 120)" />
+        <input id="image" placeholder="Image URL" />
+        <button onclick="add()">Add Product</button>
+      </div>
 
-    <div class="box">
-      <h3>Orders</h3>
-      <div id="orders"></div>
+      <div class="card">
+        <h2>Orders</h2>
+        <div class="orders" id="orders"></div>
+      </div>
     </div>
 
     <script>
@@ -182,7 +280,7 @@ app.get("/admin", (req, res) => {
             image:image.value
           })
         });
-        alert("Added");
+        alert('✅ Product Added');
       }
 
       async function loadOrders(){
@@ -190,11 +288,15 @@ app.get("/admin", (req, res) => {
         let data = await res.json();
 
         document.getElementById('orders').innerHTML = data.map(o=>\`
-          <div>
-            <p>ID: \${o.id}</p>
-            <p>Phone: \${o.phone}</p>
-            <p>Status: \${o.status}</p>
-            <button onclick="update(\${o.id})">Confirm</button>
+          <div class="order \${o.status === 'confirmed' ? 'confirmed' : ''}">
+            <div class="top">
+              <strong>Order #\${o.id}</strong>
+              <span class="status \${o.status === 'confirmed' ? 'done' : 'pending'}">
+                \${o.status}
+              </span>
+            </div>
+            <p>📞 \${o.phone}</p>
+            <button onclick="update(\${o.id})">Confirm Order</button>
           </div>
         \`).join('');
       }
@@ -214,7 +316,6 @@ app.get("/admin", (req, res) => {
   </html>
   `);
 });
-
 // SERVER
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log("Server running"));
